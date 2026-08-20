@@ -1,0 +1,42 @@
+# Gizli dosyalar (imaja asla girmemeli)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+
+# Veritabanı
+routinelens.db
+routinelens.db-wal
+routinelens.db-shm
+*.db
+*.sqlite3
+
+# Video / log
+kayitlar/
+logs/
+*.log
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Model ve ağır dosyalar
+*.pt
+*.onnx
+
+# Ajanın kullanıcıya özel ayarı
+ajan_ayarlar.txt
+
+# Git / IDE
+.git/
+.gitignore
+.idea/
+.vscode/
+
+

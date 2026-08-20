@@ -1,0 +1,9 @@
+# RoutineLens — ajan (kamera/YOLO) için minimum bağımlılıklar
+# Kurulum: ajan\kur.bat çalıştırılır (venv oluşturup bunları kurar)
+# Önerilen Python: 3.11
+
+ultralytics>=8.1.0
+opencv-python>=4.8.0
+plyer>=2.1.0
+imageio-ffmpeg>=0.5.0
+python-dotenv>=1.0.0
