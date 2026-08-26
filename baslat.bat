@@ -55,10 +55,8 @@ if not exist "venv\Scripts\python.exe" (
     venv\Scripts\python.exe -c "from ultralytics import YOLO; YOLO('yolov8n-pose.pt'); YOLO('yolov8n.pt'); print('Modeller hazir')"
 )
 
-REM 4) Kullanici adi
-set "KULLANICI="
-set /p KULLANICI="Kullanici adi (bos birakirsaniz: admin): "
-if "%KULLANICI%"=="" set "KULLANICI=admin"
+REM 4) Kullanici (varsayilan: admin)
+set "KULLANICI=admin"
 
 REM 5) Kamerayi baslat (native ajan)
 echo Kamera baslatiliyor - kullanici: %KULLANICI%
@@ -72,5 +70,4 @@ echo.
 echo Dashboard - http://localhost:8501
 echo Giris - admin / admin123
 echo Kamera kullanici - %KULLANICI%
-pause
 
