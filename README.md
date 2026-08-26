@@ -81,6 +81,10 @@ docker compose up -d
 > Panel, sunucuyu çalıştıran bilgisayarda `http://localhost:8501`, aynı ağdaki diğer
 > bilgisayarlarda `http://<sunucu-ip>:8501` adresinden açılır.
 
+> ⚠️ Paneli **elle** (`streamlit run dashboard.py`) çalıştırmayın; yalnızca Docker
+> üzerinden (`baslat.bat` veya `docker compose up -d`) çalıştırın. Elle çalıştırırsanız
+> 8501 portu çakışır ve giriş (admin şifresi) yanlış veritabanına bakar.
+
 ### 2) Yönetici: tarayıcıdan giriş yap ve kullanıcıları oluştur
 
 1. Tarayıcıdan `http://<sunucu-ip>:8501` adresini aç.

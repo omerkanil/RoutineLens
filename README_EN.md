@@ -82,6 +82,10 @@ Images are built automatically on the first run (this may take a few minutes).
 > On the machine running the server, open `http://localhost:8501`; on other machines
 > on the same network, open `http://<server-ip>:8501`.
 
+> ⚠️ Do **not** run the dashboard manually (`streamlit run dashboard.py`); only run it
+> via Docker (`baslat.bat` or `docker compose up -d`). Running it manually causes a
+> port 8501 conflict and points login (admin password) at the wrong database.
+
 ### 2) Admin: log in from the browser and create users
 
 1. Open `http://<server-ip>:8501` in a browser.
