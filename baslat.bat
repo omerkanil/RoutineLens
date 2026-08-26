@@ -3,56 +3,74 @@ chcp 65001 >nul
 setlocal
 cd /d "%~dp0"
 
-title RoutineLens - Baslat
+title RoutineLens - Baslat (Dashboard + Kamera)
 
 echo ============================================
-echo   RoutineLens - Panel + Kamera
+echo   RoutineLens - Dashboard + Kamera
 echo ============================================
 echo.
 
-REM Docker varsa durdur (8501 portunu serbest birak)
-docker compose down >nul 2>nul
-
-REM Python kontrolu
-where python >nul 2>nul
+REM 1) Docker (dashboard icin)
+where docker >nul 2>nul
 if errorlevel 1 (
-    echo [HATA] Python bulunamadi. Python 3.11 kurun.
+    echo [HATA] Docker bulunamadi. Docker Desktop kurun.
     pause
     exit /b 1
+)
+
+docker info >nul 2>nul
+if errorlevel 1 (
+    echo Docker motoru kapali. Docker Desktop baslatiliyor...
+    start "" "%ProgramFiles%\Docker\Docker\Docker Desktop.exe" 2>nul
+    start "" "%LOCALAPPDATA%\Programs\DockerDesktop\Docker Desktop.exe" 2>nul
+    echo Docker hazir olana kadar bekleniyor...
+    timeout /t 30 /nobreak >nul
+)
+
+echo Dashboard baslatiliyor (Docker)...
+docker compose up -d
+
+REM 2) Python kontrolu (kamera icin)
+where python >nul 2>nul
+if errorlevel 1 (
+    echo [UYARI] Python bulunamadi - kamera baslamayacak, sadece panel acilacak.
+    goto tarayici
 )
 
 python --version 2>&1 | findstr /i /c:"3.9" /c:"3.10" /c:"3.11" /c:"3.12" >nul
 if errorlevel 1 (
-    echo [HATA] Python 3.9 - 3.12 gerekli. Kurulu surum:
-    python --version
-    pause
-    exit /b 1
+    echo [UYARI] Python 3.9-3.12 gerekli - kamera baslamayacak.
+    goto tarayici
 )
 
-REM Ilk kurulum: sanal ortam + bagimliliklar + modeller
+REM 3) Ajan bagimliliklari (bir kez)
 if not exist "venv\Scripts\python.exe" (
-    echo Ilk kurulum basliyor - bir kac dakika surebilir...
+    echo Ajan bagimliliklari kuruluyor - bir kac dakika...
     python -m venv venv
     venv\Scripts\python.exe -m pip install --upgrade pip
-    venv\Scripts\python.exe -m pip install -r requirements.txt
+    venv\Scripts\python.exe -m pip install -r agent_requirements.txt
     echo GPU hizlandirmasi icin CUDA torch kuruluyor...
     venv\Scripts\python.exe -m pip install --upgrade --force-reinstall torch torchvision --index-url https://download.pytorch.org/whl/cu121
     echo YOLO modelleri indiriliyor...
     venv\Scripts\python.exe -c "from ultralytics import YOLO; YOLO('yolov8n-pose.pt'); YOLO('yolov8n.pt'); print('Modeller hazir')"
 )
 
-set "PY=venv\Scripts\python.exe"
+REM 4) Kullanici adi
+set "KULLANICI="
+set /p KULLANICI="Kullanici adi (bos birakirsaniz: admin): "
+if "%KULLANICI%"=="" set "KULLANICI=admin"
+
+REM 5) Kamerayi baslat (native ajan)
+echo Kamera baslatiliyor - kullanici: %KULLANICI%
+start "RoutineLens Kamera" "venv\Scripts\python.exe" main.py --kullanici "%KULLANICI%" --sunucu http://localhost:8000
+
+:tarayici
+echo Tarayici aciliyor - http://localhost:8501
+start "" "http://localhost:8501"
 
 echo.
-echo Panel - http://localhost:8501
+echo Dashboard - http://localhost:8501
 echo Giris - admin / admin123
-echo Kamera icin panelde "Takibi Baslat" butonuna tiklayin.
-echo.
-echo Panel baslatiliyor - tarayici ~20 saniye icinde otomatik acilir.
-start "" powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep 20; Start-Process 'http://localhost:8501'"
-
-"%PY%" -m streamlit run dashboard.py --server.port=8501
-
-echo.
-echo Panel durdu. Bu pencereyi kapatabilirsiniz.
+echo Kamera kullanici - %KULLANICI%
 pause
+
