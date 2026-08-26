@@ -64,18 +64,22 @@ uygulamasıdır. Herkes **aynı adrese** giriş yapar; `admin` rolüne sahip kul
 
 Gereksinim: [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac) veya Docker Engine + Compose (Linux).
 
-```bash
-# Örnek ortam dosyasını kopyalayıp düzenleyin
-copy .env.example .env   # Windows
-# cp .env.example .env    # Linux / Mac
+**En kolayı (Windows):** `baslat.bat` dosyasına çift tıklayın — Docker'ı başlatır,
+konteynerleri ayağa kaldırır ve tarayıcıyı `http://localhost:8501` adresiyle açar.
 
+**Elle çalıştırmak için:**
+
+```bash
 docker compose up -d
 ```
 
-İlk çalıştırmada imajlar otomatik derlenir.
+İlk çalıştırmada imajlar otomatik derlenir (birkaç dakika sürebilir).
 
-- **Panel:** http://localhost:8501 — varsayılan kullanıcı `admin`; şifre `.env` içindeki `ROUTINELENS_ADMIN_SIFRE` değeridir (`.env.example`'ı kopyalayıp düzenleyin).
+- **Panel:** http://localhost:8501 — varsayılan kullanıcı `admin`, şifre `admin123`. `.env` oluşturmadıysanız bu varsayılan geçerlidir (`.env` yalnızca şifreyi değiştirmek isterseniz).
 - **API:** http://localhost:8000 (dokümantasyon http://localhost:8000/docs)
+
+> Panel, sunucuyu çalıştıran bilgisayarda `http://localhost:8501`, aynı ağdaki diğer
+> bilgisayarlarda `http://<sunucu-ip>:8501` adresinden açılır.
 
 ### 2) Yönetici: tarayıcıdan giriş yap ve kullanıcıları oluştur
 

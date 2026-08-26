@@ -65,18 +65,22 @@ dashboard.
 
 Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac) or Docker Engine + Compose (Linux).
 
-```bash
-# Copy and edit the sample env file
-copy .env.example .env   # Windows
-# cp .env.example .env    # Linux / Mac
+**Easiest (Windows):** double-click `baslat.bat` — it starts Docker, brings up the
+containers and opens the browser at `http://localhost:8501`.
 
+**Manual:**
+
+```bash
 docker compose up -d
 ```
 
-Images are built automatically on the first run.
+Images are built automatically on the first run (this may take a few minutes).
 
-- **Dashboard:** http://localhost:8501 — default user `admin`; the password is the `ROUTINELENS_ADMIN_SIFRE` value from `.env` (copy `.env.example` and edit it).
+- **Dashboard:** http://localhost:8501 — default user `admin`, password `admin123`. This default applies unless you create a `.env` (`.env` is only needed to change the password).
 - **API:** http://localhost:8000 (docs at http://localhost:8000/docs)
+
+> On the machine running the server, open `http://localhost:8501`; on other machines
+> on the same network, open `http://<server-ip>:8501`.
 
 ### 2) Admin: log in from the browser and create users
 
