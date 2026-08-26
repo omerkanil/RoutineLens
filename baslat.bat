@@ -28,7 +28,7 @@ if errorlevel 1 (
 )
 
 echo Dashboard baslatiliyor (Docker)...
-docker compose up -d
+docker compose up -d --build
 
 REM 2) Python kontrolu (kamera icin)
 where python >nul 2>nul
