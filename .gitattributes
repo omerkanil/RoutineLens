@@ -1,0 +1,3 @@
+# Windows .bat dosyaları CRLF satır sonu ister; ikili olarak işaretle ki
+# GitHub'dan indirildiğinde satır sonları bozulmasın.
+*.bat -text
