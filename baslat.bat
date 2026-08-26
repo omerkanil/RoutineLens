@@ -43,14 +43,14 @@ if not exist "venv\Scripts\python.exe" (
 
 set "PY=venv\Scripts\python.exe"
 
-echo Panel baslatiliyor - http://localhost:8501
-start "RoutineLens Panel" "%PY%" -m streamlit run dashboard.py --server.port=8501
-
-timeout /t 6 /nobreak >nul
-start "" "http://localhost:8501"
-
 echo.
 echo Panel - http://localhost:8501
 echo Giris - admin / admin123
 echo Kamera icin panelde "Takibi Baslat" butonuna tiklayin.
+echo.
+echo Panel baslatiliyor - sayfa birkac saniye icinde yuklenir (gerekirse F5).
+start "" "http://localhost:8501"
+
+"%PY%" -m streamlit run dashboard.py --server.port=8501
+
 pause
