@@ -21,9 +21,10 @@ if errorlevel 1 (
     exit /b 1
 )
 
-python -c "import sys; sys.exit(0 if (3,9) <= sys.version_info[:2] <= (3,12) else 1)"
+python --version 2>&1 | findstr /i /c:"3.9" /c:"3.10" /c:"3.11" /c:"3.12" >nul
 if errorlevel 1 (
-    echo [HATA] Python 3.9 - 3.12 gerekli.
+    echo [HATA] Python 3.9 - 3.12 gerekli. Kurulu surum:
+    python --version
     pause
     exit /b 1
 )
@@ -43,7 +44,7 @@ if not exist "venv\Scripts\python.exe" (
 set "PY=venv\Scripts\python.exe"
 
 echo Panel baslatiliyor - http://localhost:8501
-start "RoutineLens Panel" "%PY%" -m streamlit run dashboard.py --server.port=8501 --server.headless=false
+start "RoutineLens Panel" "%PY%" -m streamlit run dashboard.py --server.port=8501
 
 timeout /t 6 /nobreak >nul
 start "" "http://localhost:8501"
