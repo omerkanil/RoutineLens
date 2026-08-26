@@ -55,12 +55,9 @@ if not exist "venv\Scripts\python.exe" (
     venv\Scripts\python.exe -c "from ultralytics import YOLO; YOLO('yolov8n-pose.pt'); YOLO('yolov8n.pt'); print('Modeller hazir')"
 )
 
-REM 4) Kullanici (varsayilan: admin)
-set "KULLANICI=admin"
-
-REM 5) Kamerayi baslat (native ajan)
-echo Kamera baslatiliyor - kullanici: %KULLANICI%
-start "RoutineLens Kamera" "venv\Scripts\python.exe" main.py --kullanici "%KULLANICI%" --sunucu http://localhost:8000
+REM 4) Kamera kontrolcusunu baslat (kamera, paneldeki Takibi Baslat ile acilir)
+echo Ajan kontrolcusu baslatiliyor...
+start "RoutineLens Kontrol" "venv\Scripts\python.exe" ajan\kontrol.py
 
 :tarayici
 echo Tarayici aciliyor - http://localhost:8501
@@ -69,5 +66,5 @@ start "" "http://localhost:8501"
 echo.
 echo Dashboard - http://localhost:8501
 echo Giris - admin / admin123
-echo Kamera kullanici - %KULLANICI%
+echo Kamera - panelde "Takibi Baslat" butonuna basin.
 

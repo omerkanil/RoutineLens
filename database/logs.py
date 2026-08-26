@@ -38,3 +38,22 @@ def surec_oku(conn, kullanici_adi):
 def surec_sil(conn, kullanici_adi):
     conn.execute("DELETE FROM surecler WHERE kullanici_adi = ?", (kullanici_adi,))
     conn.commit()
+
+
+def komut_yaz(conn, kullanici_adi, komut):
+    """Ajan kontrolcüsü için komut yazar (baslat / durdur)."""
+    conn.execute(
+        "INSERT INTO komutlar (kullanici_adi, komut, zaman) VALUES (?, ?, ?) "
+        "ON CONFLICT(kullanici_adi) DO UPDATE SET komut = excluded.komut, zaman = excluded.zaman",
+        (kullanici_adi, komut, datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+    )
+    conn.commit()
+
+
+def komutlari_oku_temizle(conn):
+    """Bekleyen komutları okur ve temizler."""
+    satirlar = conn.execute("SELECT kullanici_adi, komut FROM komutlar").fetchall()
+    if satirlar:
+        conn.execute("DELETE FROM komutlar")
+        conn.commit()
+    return [{"kullanici": s["kullanici_adi"], "komut": s["komut"]} for s in satirlar]

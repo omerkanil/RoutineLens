@@ -23,6 +23,7 @@ from database.crud import (
 )
 from database.logs import (
     canli_durum_guncelle, canli_durum_sil, surec_kaydet, surec_oku, surec_sil,
+    komut_yaz, komutlari_oku_temizle,
 )
 from database.settings import ayar_oku, ayar_yaz
 from database.storage import depo_boyutu, depo_temizle, depo_uyari_mesaji

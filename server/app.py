@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from database.manager import db_manager
-from database.logs import canli_durum_guncelle, canli_durum_sil
+from database.logs import canli_durum_guncelle, canli_durum_sil, komutlari_oku_temizle
 
 app = FastAPI(title="RoutineLens API", version="1.0.0")
 
@@ -68,5 +68,14 @@ def cevrimdisi(m: DurumMesaji):
     try:
         canli_durum_sil(conn, m.kullanici)
         return {"ok": True}
+    finally:
+        conn.close()
+
+
+@app.get("/api/komutlar")
+def komutlari_getir():
+    conn = db_manager.baglan()
+    try:
+        return {"komutlar": komutlari_oku_temizle(conn)}
     finally:
         conn.close()

@@ -112,6 +112,14 @@ class DatabaseManager:
             )
         ''')
 
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS komutlar (
+                kullanici_adi TEXT PRIMARY KEY,
+                komut TEXT,
+                zaman TEXT
+            )
+        ''')
+
         # İlk çalıştırmada varsayılan admin hesabını oluştur
         if c.execute("SELECT COUNT(*) FROM kullanicilar WHERE rol = 'admin'").fetchone()[0] == 0:
             sifre_hash = sifre_hashle(VARSAYILAN_ADMIN_SIFRE)
