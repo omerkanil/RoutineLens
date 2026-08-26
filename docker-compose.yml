@@ -42,6 +42,7 @@ services:
       ROUTINELENS_KAYIT: /data/kayitlar
     volumes:
       - routinelens-data:/data
+      - ./kayitlar:/data/kayitlar
     depends_on:
       - api
     restart: unless-stopped

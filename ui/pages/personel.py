@@ -81,12 +81,14 @@ def calisan_paneli(conn, kullanici):
             with baslat_kol:
                 if st.button("Takibi Başlat", icon=":material/play_arrow:", type="primary", width="stretch", disabled=aktif):
                     db.komut_yaz(conn, kullanici["kullanici_adi"], "baslat")
-                    st.success("Takip başlatma komutu gönderildi.")
+                    db.canli_durum_guncelle(conn, kullanici["kullanici_adi"], "Başlatılıyor")
+                    st.success("Takip başlatılıyor...")
                     st.rerun()
             with bitir_kol:
                 if st.button("Takibi Bitir", icon=":material/stop:", width="stretch", disabled=not aktif):
                     db.komut_yaz(conn, kullanici["kullanici_adi"], "durdur")
-                    st.success("Takip durdurma komutu gönderildi.")
+                    db.canli_durum_sil(conn, kullanici["kullanici_adi"])
+                    st.success("Takip durduruluyor...")
                     st.rerun()
         else:
             baslat_kol, bitir_kol = st.columns(2)
