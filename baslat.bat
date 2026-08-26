@@ -48,9 +48,11 @@ echo Panel - http://localhost:8501
 echo Giris - admin / admin123
 echo Kamera icin panelde "Takibi Baslat" butonuna tiklayin.
 echo.
-echo Panel baslatiliyor - sayfa birkac saniye icinde yuklenir (gerekirse F5).
-start "" "http://localhost:8501"
+echo Panel baslatiliyor - tarayici ~20 saniye icinde otomatik acilir.
+start "" powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep 20; Start-Process 'http://localhost:8501'"
 
 "%PY%" -m streamlit run dashboard.py --server.port=8501
 
+echo.
+echo Panel durdu. Bu pencereyi kapatabilirsiniz.
 pause
