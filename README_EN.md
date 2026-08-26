@@ -65,16 +65,18 @@ dashboard.
 
 Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac) or Docker Engine + Compose (Linux).
 
-**Easiest (Windows):** double-click `baslat.bat` — it starts Docker, brings up the
-containers and opens the browser at `http://localhost:8501`.
+**Single machine (Windows, includes camera):** double-click `baslat.bat` — it starts the
+dashboard **and the camera on the same PC**, then opens the browser at `http://localhost:8501`.
+On the first run it installs Python dependencies and the YOLO models (a few minutes).
 
-**Manual:**
+**Server / LAN mode (Docker):** the camera does NOT run in Docker; it runs on each
+employee's PC via the agent.
 
 ```bash
 docker compose up -d
 ```
 
-Images are built automatically on the first run (this may take a few minutes).
+Images are built automatically on the first run.
 
 - **Dashboard:** http://localhost:8501 — default user `admin`, password `admin123`. This default applies unless you create a `.env` (`.env` is only needed to change the password).
 - **API:** http://localhost:8000 (docs at http://localhost:8000/docs)
@@ -82,9 +84,8 @@ Images are built automatically on the first run (this may take a few minutes).
 > On the machine running the server, open `http://localhost:8501`; on other machines
 > on the same network, open `http://<server-ip>:8501`.
 
-> ⚠️ Do **not** run the dashboard manually (`streamlit run dashboard.py`); only run it
-> via Docker (`baslat.bat` or `docker compose up -d`). Running it manually causes a
-> port 8501 conflict and points login (admin password) at the wrong database.
+> ⚠️ Do not run `baslat.bat` (single machine) and Docker mode at the same time — both
+> use port 8501. Use only one at a time.
 
 ### 2) Admin: log in from the browser and create users
 

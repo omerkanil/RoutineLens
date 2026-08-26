@@ -64,16 +64,18 @@ uygulamasıdır. Herkes **aynı adrese** giriş yapar; `admin` rolüne sahip kul
 
 Gereksinim: [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac) veya Docker Engine + Compose (Linux).
 
-**En kolayı (Windows):** `baslat.bat` dosyasına çift tıklayın — Docker'ı başlatır,
-konteynerleri ayağa kaldırır ve tarayıcıyı `http://localhost:8501` adresiyle açar.
+**Tek makine (Windows, kamera dahil):** `baslat.bat` dosyasına çift tıklayın — paneli
+ve kamerayı **aynı bilgisayarda** başlatır, tarayıcıyı `http://localhost:8501` ile açar.
+İlk çalıştırmada Python bağımlılıklarını ve YOLO modellerini kurar (birkaç dakika).
 
-**Elle çalıştırmak için:**
+**Sunucu / LAN modu (Docker):** Docker'da kamera ÇALIŞMAZ; kamera her çalışanın
+bilgisayarında ajan ile çalışır.
 
 ```bash
 docker compose up -d
 ```
 
-İlk çalıştırmada imajlar otomatik derlenir (birkaç dakika sürebilir).
+İlk çalıştırmada imajlar otomatik derlenir.
 
 - **Panel:** http://localhost:8501 — varsayılan kullanıcı `admin`, şifre `admin123`. `.env` oluşturmadıysanız bu varsayılan geçerlidir (`.env` yalnızca şifreyi değiştirmek isterseniz).
 - **API:** http://localhost:8000 (dokümantasyon http://localhost:8000/docs)
@@ -81,9 +83,8 @@ docker compose up -d
 > Panel, sunucuyu çalıştıran bilgisayarda `http://localhost:8501`, aynı ağdaki diğer
 > bilgisayarlarda `http://<sunucu-ip>:8501` adresinden açılır.
 
-> ⚠️ Paneli **elle** (`streamlit run dashboard.py`) çalıştırmayın; yalnızca Docker
-> üzerinden (`baslat.bat` veya `docker compose up -d`) çalıştırın. Elle çalıştırırsanız
-> 8501 portu çakışır ve giriş (admin şifresi) yanlış veritabanına bakar.
+> ⚠️ `baslat.bat` (tek makine) ile Docker modunu aynı anda çalıştırmayın — ikisi de
+> 8501 portunu kullanır. Tek seferde yalnızca birini kullanın.
 
 ### 2) Yönetici: tarayıcıdan giriş yap ve kullanıcıları oluştur
 
