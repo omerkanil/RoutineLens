@@ -75,17 +75,25 @@ def calisan_paneli(conn, kullanici):
         else:
             st.info("Takip şu an kapalı.")
 
-        baslat_kol, bitir_kol = st.columns(2)
-        with baslat_kol:
-            if st.button("Takibi Başlat", icon=":material/play_arrow:", type="primary", width="stretch", disabled=aktif):
-                pid = takip_baslat(conn, kullanici["kullanici_adi"])
-                st.success(f"Takip başlatıldı (PID {pid}). Kamera penceresi açılacak.")
-                st.rerun()
-        with bitir_kol:
-            if st.button("Takibi Bitir", icon=":material/stop:", width="stretch", disabled=not aktif):
-                takip_durdur(conn, kullanici["kullanici_adi"])
-                st.success("Takip durduruldu.")
-                st.rerun()
+        if db.DB_PATH.startswith("/"):
+            # Docker / LAN modu: kamera çalışanın kendi bilgisayarında çalışır.
+            st.caption(
+                "Kamera bu panelde değil, kendi bilgisayarınızda çalışır. "
+                "Başlatmak için bilgisayarınızda `ajan\\kur.bat` (bir kez) ve "
+                "`ajan\\RoutineLensAjan.bat` çalıştırın (`ajan_ayarlar.txt` içine SUNUCU ve KULLANICI yazın)."
+            )
+        else:
+            baslat_kol, bitir_kol = st.columns(2)
+            with baslat_kol:
+                if st.button("Takibi Başlat", icon=":material/play_arrow:", type="primary", width="stretch", disabled=aktif):
+                    pid = takip_baslat(conn, kullanici["kullanici_adi"])
+                    st.success(f"Takip başlatıldı (PID {pid}). Kamera penceresi açılacak.")
+                    st.rerun()
+            with bitir_kol:
+                if st.button("Takibi Bitir", icon=":material/stop:", width="stretch", disabled=not aktif):
+                    takip_durdur(conn, kullanici["kullanici_adi"])
+                    st.success("Takip durduruldu.")
+                    st.rerun()
 
     ozet = kullanici_gunluk_ozet(conn, kullanici["kullanici_adi"], tarih_str)
 
