@@ -8,7 +8,10 @@ from datetime import datetime
 import db
 from services.analytics import format_sure, verimlilik_skoru, kullanici_adi_goster, saatlik_df, gunluk_trend_df
 from ui.security import admin_gerekli
-from ui.components.grafikler import saatlik_verim_grafigi, gunluk_trend_grafigi
+from ui.components.grafikler import (
+    saatlik_verim_grafigi, saatlik_verim_cizgi_grafigi, saatlik_verim_pasta_grafigi,
+    gunluk_trend_grafigi, gunluk_trend_cizgi_grafigi, gunluk_trend_pasta_grafigi,
+)
 
 
 @st.cache_data(ttl=60, show_spinner=False)
@@ -108,7 +111,14 @@ def takim_analitigi(conn):
     st.subheader(":material/schedule: Saatlik Verim Analizi (Bugün)")
     saat_df = _saatlik_df_oku(bugun)
     if not saat_df.empty:
-        st.plotly_chart(saatlik_verim_grafigi(saat_df), use_container_width=True)
+        saat_turu = st.radio("Saatlik grafik türü", ["Bar", "Çizgi", "Pie"], horizontal=True, key="saatlik_tur")
+        if saat_turu == "Çizgi":
+            saat_fig = saatlik_verim_cizgi_grafigi(saat_df)
+        elif saat_turu == "Pie":
+            saat_fig = saatlik_verim_pasta_grafigi(saat_df)
+        else:
+            saat_fig = saatlik_verim_grafigi(saat_df)
+        st.plotly_chart(saat_fig, use_container_width=True, config={"displayModeBar": False})
         st.caption("Yeşil: çalışma (dk) · Turuncu: telefon (dk). Bugün hangi saatlerde verimin düştüğünü gösterir.")
     else:
         st.info("Bugüne ait saatlik veri yok.")
@@ -119,7 +129,14 @@ def takim_analitigi(conn):
     if not trend_df.empty:
         pivot = trend_df.pivot(index="tarih", columns="kullanici", values="calisma_dk").fillna(0)
         pivot.columns = [kullanici_adi_goster(c) for c in pivot.columns]
-        st.plotly_chart(gunluk_trend_grafigi(pivot), use_container_width=True)
+        trend_turu = st.radio("Günlük grafik türü", ["Bar", "Çizgi", "Pie"], horizontal=True, key="gunluk_tur")
+        if trend_turu == "Çizgi":
+            trend_fig = gunluk_trend_cizgi_grafigi(pivot)
+        elif trend_turu == "Pie":
+            trend_fig = gunluk_trend_pasta_grafigi(pivot)
+        else:
+            trend_fig = gunluk_trend_grafigi(pivot)
+        st.plotly_chart(trend_fig, use_container_width=True, config={"displayModeBar": False})
     else:
         st.info("Trend verisi yok.")
 

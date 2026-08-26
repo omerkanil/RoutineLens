@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import db
 from services.analytics import liderlik_df, format_sure, kullanici_adi_goster
 from ui.security import admin_gerekli, guvenli_metin
-from ui.components.grafikler import liderlik_grafigi
+from ui.components.grafikler import liderlik_grafigi, liderlik_pasta_grafigi, liderlik_cizgi_grafigi
 
 
 @st.cache_data(ttl=60, show_spinner=False)
@@ -39,4 +39,11 @@ def liderlik(conn):
         st.write(f"{amblem} **{guvenli_metin(isim)}** — {format_sure(int(row['calisma_sn']))}")
         st.progress(min(int(row["calisma_sn"]) / max_calisma, 1.0))
     st.divider()
-    st.plotly_chart(liderlik_grafigi(df), use_container_width=True)
+    grafik_turu = st.radio("Grafik türü", ["Bar", "Pie", "Çizgi"], horizontal=True)
+    if grafik_turu == "Pie":
+        fig = liderlik_pasta_grafigi(df)
+    elif grafik_turu == "Çizgi":
+        fig = liderlik_cizgi_grafigi(df)
+    else:
+        fig = liderlik_grafigi(df)
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})

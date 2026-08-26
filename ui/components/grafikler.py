@@ -110,6 +110,46 @@ def kisisel_grafik(grafik_df):
     return _stil(fig)
 
 
+def kisisel_pasta_grafigi(grafik_df):
+    """Personel kategori dağılımı — pasta (donut) grafiği."""
+    renk_haritasi = {
+        "Çalışma": YESIL,
+        "Dinlenme": CAMGOBEGI,
+        "Odak Kaybı": AMBER,
+        "Telefon": TURUNCU,
+    }
+    veri = [(k, float(v)) for k, v in zip(grafik_df.index, grafik_df.iloc[:, 0]) if float(v) > 0]
+    kategoriler = [k for k, _ in veri]
+    degerler = [v for _, v in veri]
+    renkler = [renk_haritasi.get(k, INDIGO) for k in kategoriler]
+    fig = go.Figure(go.Pie(
+        labels=kategoriler,
+        values=degerler,
+        marker=dict(colors=renkler),
+        hole=0.4,
+        textinfo="percent",
+        hovertemplate="%{label}: %{value:.1f} dk (%{percent})<extra></extra>",
+    ))
+    return _stil(fig)
+
+
+def kisisel_cizgi_grafigi(grafik_df):
+    """Personel kategori dağılımı — çizgi grafiği."""
+    kategoriler = list(grafik_df.index)
+    degerler = [float(v) for v in grafik_df.iloc[:, 0]]
+    fig = go.Figure(go.Scatter(
+        x=kategoriler,
+        y=degerler,
+        mode="lines+markers",
+        line=dict(color=INDIGO, width=3),
+        marker=dict(size=9),
+        hovertemplate="%{x}: %{y:.1f} dk<extra></extra>",
+    ))
+    fig.update_xaxes(title=None)
+    fig.update_yaxes(title="Süre (dk)")
+    return _stil(fig)
+
+
 def liderlik_grafigi(df):
     """Liderlik tablosu: kişiye göre çalışma (dk) sütun grafiği."""
     veri = df[["kullanici", "calisma_sn"]].copy()
@@ -125,4 +165,99 @@ def liderlik_grafigi(df):
     ))
     fig.update_xaxes(title=None)
     fig.update_yaxes(title="Çalışma (dk)")
+    return _stil(fig)
+
+
+def liderlik_pasta_grafigi(df):
+    """Liderlik: kişi başı çalışma (dk) — pasta grafiği."""
+    veri = df[["kullanici", "calisma_sn"]].copy()
+    veri["calisma_dk"] = veri["calisma_sn"] / 60.0
+    veri = veri[veri["calisma_dk"] > 0]
+    fig = go.Figure(go.Pie(
+        labels=veri["kullanici"],
+        values=veri["calisma_dk"],
+        hole=0.4,
+        textinfo="percent",
+        hovertemplate="%{label}: %{value:.0f} dk (%{percent})<extra></extra>",
+    ))
+    return _stil(fig)
+
+
+def liderlik_cizgi_grafigi(df):
+    """Liderlik: kişi başı çalışma (dk) — çizgi grafiği."""
+    veri = df[["kullanici", "calisma_sn"]].copy()
+    veri["calisma_dk"] = veri["calisma_sn"] / 60.0
+    fig = go.Figure(go.Scatter(
+        x=veri["kullanici"],
+        y=veri["calisma_dk"],
+        mode="lines+markers",
+        line=dict(color=INDIGO, width=3),
+        marker=dict(size=9),
+        hovertemplate="%{x}: %{y:.0f} dk<extra></extra>",
+    ))
+    fig.update_xaxes(title=None)
+    fig.update_yaxes(title="Çalışma (dk)")
+    return _stil(fig)
+
+
+def saatlik_verim_cizgi_grafigi(saat_df):
+    """Saatlere göre çalışma + telefon — çizgi grafiği."""
+    saat_etiketleri = [f"{int(h):02d}:00" for h in saat_df["saat_dilimi"]]
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=saat_etiketleri, y=saat_df["calisma_dk"], name="Çalışma",
+        mode="lines+markers", line=dict(color=YESIL, width=3),
+        hovertemplate="%{y:.0f} dk<extra>Çalışma</extra>",
+    ))
+    fig.add_trace(go.Scatter(
+        x=saat_etiketleri, y=saat_df["telefon_dk"], name="Telefonda",
+        mode="lines+markers", line=dict(color=TURUNCU, width=3),
+        hovertemplate="%{y:.0f} dk<extra>Telefonda</extra>",
+    ))
+    fig.update_xaxes(title="Saat")
+    fig.update_yaxes(title="Dakika")
+    return _stil(fig)
+
+
+def saatlik_verim_pasta_grafigi(saat_df):
+    """Toplam çalışma vs telefon — pasta grafiği."""
+    toplam_calisma = float(saat_df["calisma_dk"].sum())
+    toplam_telefon = float(saat_df["telefon_dk"].sum())
+    etiketler, degerler, renkler = [], [], []
+    if toplam_calisma > 0:
+        etiketler.append("Çalışma"); degerler.append(toplam_calisma); renkler.append(YESIL)
+    if toplam_telefon > 0:
+        etiketler.append("Telefonda"); degerler.append(toplam_telefon); renkler.append(TURUNCU)
+    fig = go.Figure(go.Pie(
+        labels=etiketler, values=degerler, marker=dict(colors=renkler),
+        hole=0.4, textinfo="percent",
+        hovertemplate="%{label}: %{value:.0f} dk (%{percent})<extra></extra>",
+    ))
+    return _stil(fig)
+
+
+def gunluk_trend_cizgi_grafigi(pivot):
+    """Günlük toplam çalışma — çizgi grafiği."""
+    toplam = pivot.sum(axis=1).reset_index()
+    toplam.columns = ["tarih", "calisma_dk"]
+    fig = go.Figure(go.Scatter(
+        x=toplam["tarih"], y=toplam["calisma_dk"],
+        mode="lines+markers", line=dict(color=INDIGO, width=3), marker=dict(size=9),
+        hovertemplate="%{x}: %{y:.0f} dk<extra></extra>",
+    ))
+    fig.update_xaxes(title="Tarih")
+    fig.update_yaxes(title="Çalışma (dk)")
+    return _stil(fig)
+
+
+def gunluk_trend_pasta_grafigi(pivot):
+    """Günlere göre çalışma dağılımı — pasta grafiği."""
+    toplam = pivot.sum(axis=1).reset_index()
+    toplam.columns = ["tarih", "calisma_dk"]
+    toplam = toplam[toplam["calisma_dk"] > 0]
+    fig = go.Figure(go.Pie(
+        labels=toplam["tarih"], values=toplam["calisma_dk"],
+        hole=0.4, textinfo="percent",
+        hovertemplate="%{label}: %{value:.0f} dk (%{percent})<extra></extra>",
+    ))
     return _stil(fig)

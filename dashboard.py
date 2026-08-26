@@ -27,23 +27,35 @@ def main():
     _schema_bir_kez_kur()
     conn = db_manager.baglan()
     genel_stil()
+
+    
+    hide_streamlit_instructions = """
+    <style>
+    div[data-testid="InputInstructions"] {
+        display: none !important;
+    }
+    </style>
+    """
+    st.markdown(hide_streamlit_instructions, unsafe_allow_html=True)
+    # -------------------------------------------------------------------------
+
     if "giris" not in st.session_state:
         st.session_state.giris = None
 
     token = st.query_params.get("token")
 
-    # Sayfa yenilendiğinde oturumu token ile geri yükle (kalıcı giriş)
+    
     if st.session_state.giris is None and token:
         kullanici = db.oturum_dogrula(conn, token)
         if kullanici:
             st.session_state.giris = kullanici
 
-    # Oturum zaman aşımı denetimi (süre girişten itibaren sabittir)
+    
     if st.session_state.giris is not None:
         oturum_zaman_asimi_kontrol(conn, token)
         oturum_denetim_fragmani()
 
-    # Zaman aşımı / çıkış mesajını göster
+    
     if "cikis_mesaji" in st.session_state:
         st.warning(st.session_state.pop("cikis_mesaji"))
 

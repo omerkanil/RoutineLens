@@ -43,6 +43,11 @@ Sistem iki parçadan oluşur:
 1. **Sunucu (Docker)** — FastAPI + Streamlit paneli + SQLite. Ofisteki tek bir makinede çalışır ve ajanlardan yalnızca JSON alır.
 2. **Ajan (native)** — her çalışanın bilgisayarında çalışır, kamerayı açar, YOLO'yu yerelde çalıştırır ve sunucuya JSON gönderir.
 
+**Giriş / roller:** Panel, tarayıcıdan (`http://<sunucu-ip>:8501`) açılan bir web
+uygulamasıdır. Herkes **aynı adrese** giriş yapar; `admin` rolüne sahip kullanıcılar
+**yönetici panelini**, diğerleri **çalışan panelini** görür. Ajan (`main.py` +
+`ajan/` betikleri) ise yalnızca **kamerayı** çalıştırır — paneli açmaz.
+
 ```
 [Çalışan 1 PC] main.py (YOLO, native) ─┐
 [Çalışan 2 PC] main.py (YOLO, native) ─┼─ JSON (HTTP) ─▶ [SUNUCU — Docker]
@@ -72,16 +77,27 @@ docker compose up -d
 - **Panel:** http://localhost:8501 — varsayılan kullanıcı `admin`; şifre `.env` içindeki `ROUTINELENS_ADMIN_SIFRE` değeridir (`.env.example`'ı kopyalayıp düzenleyin).
 - **API:** http://localhost:8000 (dokümantasyon http://localhost:8000/docs)
 
-### 2) Kullanıcıları oluştur
+### 2) Yönetici: tarayıcıdan giriş yap ve kullanıcıları oluştur
 
-Panelde **Kullanıcı Yönetimi** sayfasını açıp her çalışan için bir hesap oluştur (örn. `omer`, `ayse`).
+1. Tarayıcıdan `http://<sunucu-ip>:8501` adresini aç.
+2. `admin` kullanıcısıyla giriş yap (şifre `.env` içindeki `ROUTINELENS_ADMIN_SIFRE` değeridir).
+3. **Kullanıcı Yönetimi** sayfasından her çalışan için bir hesap oluştur (örn. `ali`, `ayse`). Oluşturduğun kullanıcı adı ve şifreyi çalışana ilet.
 
-### 3) Ajanı her çalışanın bilgisayarına kur (native)
+### 3) Çalışan: tarayıcıdan giriş yap
+
+Çalışan, kendi bilgisayarında tarayıcıdan `http://<sunucu-ip>:8501` adresini açar ve
+yöneticinin verdiği kullanıcı adı/şifreyle giriş yapar. Açılan **çalışan panelinde**
+kendi odak skorunu, özet metriklerini, grafiklerini ve zaman çizelgesini görür.
+
+### 4) Çalışan: ajanı kur ve kamerayı başlat (native)
+
+> Ajan yalnızca **kamerayı** çalıştırır ve veriyi sunucuya gönderir; paneli **açmaz**.
+> Panel, 3. adımdaki gibi tarayıcıdan ayrıca açılır.
 
 Gereksinim: **Python 3.11** (torch/ultralytics ile en garanti uyumlu sürüm).
 
 1. `ajan\kur.bat` dosyasına çift tıklayın — bağımlılıkları kurar ve YOLO modellerini indirir (ilk kurulum birkaç dakika sürer).
-2. `ajan_ayarlar.txt` dosyasını açıp `SUNUCU` ve `KULLANICI` değerlerini girin.
+2. `ajan_ayarlar.txt` dosyasını açıp `SUNUCU` ve `KULLANICI` değerlerini girin (kullanıcı adı, panelde oluşturulan adla aynı olmalı).
 3. `ajan\RoutineLensAjan.bat` dosyasına çift tıklayın — kamera penceresi açılır. (Kapatmak için pencereye tıklayıp `q` tuşuna basın.)
 
 `ajan_ayarlar.txt` örneği:

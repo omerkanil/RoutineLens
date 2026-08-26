@@ -11,8 +11,7 @@ from ui.components.takvim import takvim_widget
 from ui.security import guvenli_metin
 from ui.session import cikis
 from ui.styles import personel_stil
-from ui.components.grafikler import kisisel_grafik
-from ui.components.geri_sayim import geri_sayim, oturum_bitis_hesapla
+from ui.components.grafikler import kisisel_grafik, kisisel_pasta_grafigi, kisisel_cizgi_grafigi
 from ui.components.marka import marka_basligi
 
 
@@ -44,14 +43,6 @@ def calisan_paneli(conn, kullanici):
         f"</div></div>",
         unsafe_allow_html=True,
     )
-    st.sidebar.divider()
-
-    # --- Oturum geri sayımı ---
-    bitis, sure_dk = oturum_bitis_hesapla(conn, st.query_params.get("token"))
-    if bitis is not None:
-        with st.sidebar:
-            geri_sayim(bitis, sure_dk)
-
     st.sidebar.divider()
 
     bugun = datetime.now().date()
@@ -136,6 +127,7 @@ def calisan_paneli(conn, kullanici):
     # --- GRAFİKLER (kart) ---
     with st.container(border=True):
         st.subheader(":material/bar_chart: Kişisel Grafikler")
+        grafik_turu = st.radio("Grafik türü", ["Bar", "Pie", "Çizgi"], horizontal=True)
         grafik_df = pd.DataFrame({
             "Kategori": ["Çalışma", "Dinlenme", "Odak Kaybı", "Telefon"],
             "Süre (dk)": [
@@ -143,7 +135,13 @@ def calisan_paneli(conn, kullanici):
                 ozet["odak_kaybi"] / 60, ozet["telefon"] / 60,
             ],
         }).set_index("Kategori")
-        st.plotly_chart(kisisel_grafik(grafik_df), use_container_width=True)
+        if grafik_turu == "Pie":
+            fig = kisisel_pasta_grafigi(grafik_df)
+        elif grafik_turu == "Çizgi":
+            fig = kisisel_cizgi_grafigi(grafik_df)
+        else:
+            fig = kisisel_grafik(grafik_df)
+        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
         toplam = ozet["calisma"] + ozet["dinlenme"] + ozet["odak_kaybi"] + ozet["telefon"]
         if toplam > 0:

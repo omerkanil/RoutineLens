@@ -51,7 +51,8 @@ def main():
     canli_durum_guncelle(conn, kullanici_adi, "Başlatılıyor")
 
     # Merkezi sunucuya da bildir (LAN kurulumu). Ulaşılamazsa ajan yerelde çalışmaya devam eder.
-    if not remote.durum_gonder(kullanici_adi, "Başlatılıyor"):
+    remote.durum_gonder(kullanici_adi, "Başlatılıyor")
+    if not remote.sunucu_hazir():
         print(f"[UYARI] Merkezi sunucuya ulaşılamadı ({remote.SUNUCU}). Veriler yalnızca yerelde tutulacak.")
 
     # --- KULLANICI AYARLARINI OKU (dashboard'dan değiştirilebilir) ---

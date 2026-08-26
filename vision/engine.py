@@ -33,6 +33,11 @@ class VisionEngine:
     """
 
     def __init__(self, pose_model_path="yolov8n-pose.pt", object_model_path="yolov8n.pt"):
+        # GPU varsa CUDA kullan; yoksa CPU'ya düş. Böylece FPS düşmez.
+        import torch
+        self.device = 0 if torch.cuda.is_available() else "cpu"
+        print(f"[INFO] YOLO cihazı: {'GPU (CUDA)' if self.device == 0 else 'CPU'}")
+
         self.pose_model = YOLO(pose_model_path)      # 1. Beyin: İskelet ve Postür (her kare)
         self.object_model = YOLO(object_model_path)  # 2. Beyin: Telefon Tespiti (kişi varken her kare)
         self.telefon_gecmisi = []                    # telefon tespit geçmişi (zamansal sabitleme)
@@ -40,7 +45,7 @@ class VisionEngine:
     def tespit(self, frame, kambur_araliksiz_sayac):
         """Tek kare üzerinde tespit yapar; TespitSonucu döndürür."""
         # 1. BEYİN: İskelet Tespiti (her kare)
-        pose_results = self.pose_model.predict(frame, conf=0.6, verbose=False)
+        pose_results = self.pose_model.predict(frame, conf=0.6, device=self.device, verbose=False)
 
         current_state = "Masada Yok (Away)"
         text_color = (0, 0, 255)
@@ -94,7 +99,7 @@ class VisionEngine:
         # Kişi yoksa nesne modeli çalıştırılmaz (telefon ataması zaten yapılamaz).
         telefon_var_mi = False
         if ana_index >= 0:
-            obj_results = self.object_model.predict(frame, conf=0.4, classes=[67], verbose=False)
+            obj_results = self.object_model.predict(frame, conf=0.25, imgsz=960, classes=[67], device=self.device, verbose=False)
             obj_boxes = obj_results[0].boxes if obj_results else []
             for box in obj_boxes:
                 tx1, ty1, tx2, ty2 = map(int, box.xyxy[0])

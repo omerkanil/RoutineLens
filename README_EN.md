@@ -43,6 +43,12 @@ The system is split into two parts:
 1. **Server (Docker)** — FastAPI + Streamlit dashboard + SQLite. Runs on one machine in the office and only receives JSON from the agents.
 2. **Agent (native)** — runs on each employee's computer, opens the camera, runs YOLO locally and sends JSON to the server.
 
+**Login / roles:** The dashboard is a web app opened in the browser
+(`http://<server-ip>:8501`). Everyone logs in at the **same address**; users with the
+`admin` role see the **admin panel**, everyone else sees the **employee panel**. The
+agent (`main.py` + `ajan/` scripts) only runs the **camera** — it does not open the
+dashboard.
+
 ```
 [Employee 1 PC] main.py (YOLO, native) ─┐
 [Employee 2 PC] main.py (YOLO, native) ─┼─ JSON (HTTP) ─▶ [SERVER — Docker]
@@ -72,16 +78,27 @@ Images are built automatically on the first run.
 - **Dashboard:** http://localhost:8501 — default user `admin`; the password is the `ROUTINELENS_ADMIN_SIFRE` value from `.env` (copy `.env.example` and edit it).
 - **API:** http://localhost:8000 (docs at http://localhost:8000/docs)
 
-### 2) Create users
+### 2) Admin: log in from the browser and create users
 
-In the dashboard, open **User Management** and create one account per employee (e.g. `omer`, `ayse`).
+1. Open `http://<server-ip>:8501` in a browser.
+2. Log in as `admin` (the password is the `ROUTINELENS_ADMIN_SIFRE` value from `.env`).
+3. Open **User Management** and create one account per employee (e.g. `omer`, `ayse`). Give the username and password to each employee.
 
-### 3) Install the agent on each employee's PC (native)
+### 3) Employee: log in from the browser
+
+The employee opens `http://<server-ip>:8501` in a browser on their own computer and
+logs in with the username/password given by the admin. The **employee panel** shows
+their focus score, summary metrics, charts and timeline.
+
+### 4) Employee: install the agent and start the camera (native)
+
+> The agent only runs the **camera** and sends data to the server; it does **not** open
+> the dashboard. The dashboard is opened separately in the browser (step 3).
 
 Requires **Python 3.11** (the most reliable version for torch/ultralytics).
 
 1. Double-click `ajan\kur.bat` — installs dependencies and downloads the YOLO models (first run takes a few minutes).
-2. Open `ajan_ayarlar.txt` and set `SUNUCU` and `KULLANICI`.
+2. Open `ajan_ayarlar.txt` and set `SUNUCU` and `KULLANICI` (the username must match the one created in the dashboard).
 3. Double-click `ajan\RoutineLensAjan.bat` — the camera window opens. (Click the window and press `q` to quit.)
 
 `ajan_ayarlar.txt` example:
