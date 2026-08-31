@@ -104,23 +104,39 @@ def video_merkezi(conn):
                             else:
                                 video_dialog(yol, video, secili_kisi, kat)
 
-            # --- Altta sayfa seçici ---
+            # --- Altta sayfa seçici (Google tarzı) ---
             if toplam_sayfa > 1:
                 st.divider()
-                k_onceki, k_orta, k_sonraki = st.columns([1, 2, 1])
-                with k_onceki:
+                GORUNEN = 7
+                if toplam_sayfa <= GORUNEN:
+                    gosterilecek = list(range(1, toplam_sayfa + 1))
+                else:
+                    gosterilecek = [1]
+                    bas = max(2, sayfa - 2)
+                    son = min(toplam_sayfa - 1, sayfa + 2)
+                    if bas > 2:
+                        gosterilecek.append("...")
+                    gosterilecek += list(range(bas, son + 1))
+                    if son < toplam_sayfa - 1:
+                        gosterilecek.append("...")
+                    gosterilecek.append(toplam_sayfa)
+
+                kolonlar = st.columns([1.5] + [1] * len(gosterilecek) + [1.5])
+                with kolonlar[0]:
                     if st.button("‹ Önceki", disabled=(sayfa <= 1),
                                  key=f"video_onceki_{secili_kisi}_{kat}", width="stretch"):
                         st.session_state[sayfa_anahtari] = sayfa - 1
                         st.rerun()
-                with k_orta:
-                    st.selectbox(
-                        "Sayfa",
-                        list(range(1, toplam_sayfa + 1)),
-                        key=sayfa_anahtari,
-                        label_visibility="collapsed",
-                    )
-                with k_sonraki:
+                for i, p in enumerate(gosterilecek):
+                    with kolonlar[i + 1]:
+                        if p == "...":
+                            st.markdown("<div style='text-align:center; padding-top:0.5rem;'>…</div>", unsafe_allow_html=True)
+                        else:
+                            if st.button(str(p), key=f"video_sayfa_{secili_kisi}_{kat}_{p}",
+                                         disabled=(p == sayfa), width="stretch"):
+                                st.session_state[sayfa_anahtari] = p
+                                st.rerun()
+                with kolonlar[-1]:
                     if st.button("Sonraki ›", disabled=(sayfa >= toplam_sayfa),
                                  key=f"video_sonraki_{secili_kisi}_{kat}", width="stretch"):
                         st.session_state[sayfa_anahtari] = sayfa + 1
