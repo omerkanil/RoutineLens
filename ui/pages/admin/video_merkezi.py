@@ -18,6 +18,29 @@ def _envanter_getir():
     return video_envanteri()
 
 
+@st.dialog("Video Kaydı", width="large")
+def video_dialog(yol, video, secili_kisi, kat):
+    """Karta tıklanınca açılan ayrı pencere (modal) — video burada oynatılır."""
+    st.video(yol, format="video/mp4")
+    kol_dl, kol_sil = st.columns([2, 1])
+    with kol_dl:
+        with open(yol, "rb") as f:
+            st.download_button(
+                "İndir", icon=":material/download:", data=f,
+                file_name=video, mime="video/mp4",
+                key=f"dl_{secili_kisi}_{kat}_{video}",
+            )
+    with kol_sil:
+        if st.button("Sil", icon=":material/delete:", key=f"sil_{secili_kisi}_{kat}_{video}", width="stretch"):
+            try:
+                os.remove(yol)
+                _envanter_getir.clear()
+                st.session_state["video_mesaji"] = "Video silindi."
+                st.rerun()
+            except Exception:
+                st.error("Silinemedi.")
+
+
 @admin_gerekli
 def video_merkezi(conn):
     st.subheader(":material/video_library: Video Kanıt Merkezi (Smart DVR)")
@@ -28,8 +51,6 @@ def video_merkezi(conn):
     if not envanter:
         st.info("Henüz video kaydı yok. 'main.py' çalışırken kayıtlar burada birikir.")
         return
-    if "acik_klip" not in st.session_state:
-        st.session_state.acik_klip = None
     kisiler = sorted(envanter.keys())
     secili_kisi = st.selectbox("Kişi Seç", kisiler, format_func=kullanici_adi_goster)
     kategoriler = envanter.get(secili_kisi)
@@ -55,7 +76,6 @@ def video_merkezi(conn):
                             except Exception:
                                 pass
                     _envanter_getir.clear()
-                    st.session_state.acik_klip = None
                     st.session_state["video_mesaji"] = f"{silinen} video silindi."
                     st.rerun()
             toplam_sayfa = max(1, math.ceil(len(videolar) / SAYFA_BOYUTU))
@@ -66,37 +86,23 @@ def video_merkezi(conn):
                 st.session_state[sayfa_anahtari] = sayfa
             bas = (sayfa - 1) * SAYFA_BOYUTU
             sayfa_videolari = videolar[bas:bas + SAYFA_BOYUTU]
-            for video in sayfa_videolari:
-                anahtar = f"{secili_kisi}:{kat}:{video}"
-                acik_mi = st.session_state.acik_klip == anahtar
-                ok_ikon = ":material/expand_more:" if acik_mi else ":material/chevron_right:"
-                if st.button(dost_isim(video), icon=ok_ikon, key=f"dv_{secili_kisi}_{kat}_{video}"):
-                    st.session_state.acik_klip = None if acik_mi else anahtar
-                    st.rerun()
-                if acik_mi:
-                    yol = guvenli_video_yolu(secili_kisi, kat, video)
-                    if yol is None:
-                        st.error("Video okunamadı veya güvenlik denetiminden geçemedi.")
-                    else:
-                        # Yolu ver; Streamlit dosyayı RAM'e kopyalamadan sunar.
-                        st.video(yol, format="video/mp4")
-                        kol_dl, kol_sil = st.columns([2, 1])
-                        with kol_dl:
-                            with open(yol, "rb") as f:
-                                st.download_button("İndir", icon=":material/download:", data=f,
-                                                   file_name=video, mime="video/mp4", key=f"dl_{secili_kisi}_{kat}_{video}")
-                        with kol_sil:
-                            if st.button("Sil", icon=":material/delete:", key=f"sil_{secili_kisi}_{kat}_{video}"):
-                                yol = guvenli_video_yolu(secili_kisi, kat, video)
-                                if yol is None:
-                                    st.error("Silme iptal edildi: güvenlik denetimi başarısız.")
-                                else:
-                                    try:
-                                        os.remove(yol)
-                                        st.session_state.acik_klip = None
-                                        st.rerun()
-                                    except Exception:
-                                        st.error("Silinemedi.")
+            KART_SUTUN = 5
+            for satir_basi in range(0, len(sayfa_videolari), KART_SUTUN):
+                satir = sayfa_videolari[satir_basi:satir_basi + KART_SUTUN]
+                kolonlar = st.columns(KART_SUTUN)
+                for idx, video in enumerate(satir):
+                    with kolonlar[idx]:
+                        if st.button(
+                            dost_isim(video),
+                            icon=":material/play_circle:",
+                            key=f"izle_{secili_kisi}_{kat}_{video}",
+                            width="stretch",
+                        ):
+                            yol = guvenli_video_yolu(secili_kisi, kat, video)
+                            if yol is None:
+                                st.error("Video okunamadı veya güvenlik denetiminden geçemedi.")
+                            else:
+                                video_dialog(yol, video, secili_kisi, kat)
 
             # --- Altta sayfa seçici ---
             if toplam_sayfa > 1:
